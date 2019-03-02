@@ -50,8 +50,8 @@ class Pqueue:
         
         while(leftchild < self.size and rightchild < self.size and
               (self.compare_to(self.info[current], self.info[leftchild]) == 1 or self.compare_to(self.info[current], self.info[rightchild]) == 1)):
-            print('leftchild: ' + str(leftchild))
-            print('rightchild: ' + str(rightchild))
+            #print('leftchild: ' + str(leftchild))
+            #print('rightchild: ' + str(rightchild))
             if self.compare_to(self.info[leftchild], self.info[rightchild]) == -1:
                 self.info[current], self.info[leftchild] = (self.info[leftchild], self.info[current])
                 current = leftchild
