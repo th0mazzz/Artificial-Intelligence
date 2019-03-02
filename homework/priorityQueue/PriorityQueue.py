@@ -40,8 +40,8 @@ class Pqueue:
         leftchild = 2 * current + 1
         rightchild = 2 * current + 2
 
-        print('leftchild: ' + str(leftchild))
-        print('rightchild: ' + str(rightchild))
+        #print('leftchild: ' + str(leftchild))
+        #print('rightchild: ' + str(rightchild))
 
         if self.size == 2 and self.info[current] > self.info[leftchild]:
             self.info[current], self.info[leftchild] = (self.info[leftchild], self.info[current])
@@ -86,9 +86,9 @@ a.push(12)
 a.push(100)
 a.push(22)
 
-a.pop()
-a.pop()
-a.pop()
+#a.pop()
+#a.pop()
+#a.pop()
 
 #a = Pqueue([1, 3, 3, 5])
 
@@ -99,7 +99,7 @@ a.pop()
 
 #a.pop()
 
-#print(a.tolist())
+print(a.tolist())
 
 print('-----')
 print(a)
