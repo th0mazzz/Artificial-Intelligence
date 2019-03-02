@@ -1,4 +1,6 @@
-class PriorityQueue:
+#!/usr/bin/python3
+
+class Pqueue:
 
     def __init__(self, optional = None): #initializes priority queue / heap
         self.info = []
@@ -6,25 +8,25 @@ class PriorityQueue:
 
         if not optional == None:
             for each in optional:
-                self.insert(each)
+                self.push(each)
                 
     def __str__(self): #the to-string method
         return str(self.info)
-
-    def insert(self, value): #inserts value into heap; sorts it so that parent >= child
+    
+    def push(self, value): #pushs value into heap; sorts it so that parent >= child
         self.info.append(value)
         self.size = self.size + 1
 
         current = self.size - 1
-        parent = (current - 1) / 2
+        parent = int((current - 1) / 2)
 
-        while(self.info[current] > self.info[parent] and parent >= 0):
+        while(self.info[current] < self.info[parent] and parent >= 0):
             self.info[current], self.info[parent] = (self.info[parent], self.info[current])
 
             current = parent
-            parent = (parent - 1) / 2
+            parent = int((parent - 1) / 2)
 
-    def remove(self): #pops off the top element and returns it; if empty, returns None
+    def pop(self): #pops off the top element and returns it; if empty, returns None
         if self.size == 0:
             return None
         
@@ -37,11 +39,18 @@ class PriorityQueue:
         current = 0
         leftchild = 2 * current + 1
         rightchild = 2 * current + 2
+
+        print('leftchild: ' + str(leftchild))
+        print('rightchild: ' + str(rightchild))
+
+        if self.size == 2 and self.info[current] > self.info[leftchild]:
+            self.info[current], self.info[leftchild] = (self.info[leftchild], self.info[current])
         
         while(leftchild < self.size and rightchild < self.size and
-              (self.info[current] < self.info[leftchild] or self.info[current] < self.info[rightchild])):
-
-            if self.info[leftchild] > self.info[rightchild]:
+              (self.info[current] > self.info[leftchild] or self.info[current] > self.info[rightchild])):
+            print('leftchild: ' + str(leftchild))
+            print('rightchild: ' + str(rightchild))
+            if self.info[leftchild] < self.info[rightchild]:
                 self.info[current], self.info[leftchild] = (self.info[leftchild], self.info[current])
                 current = leftchild
                 leftchild = current * 2 + 1
@@ -51,9 +60,10 @@ class PriorityQueue:
                 current = rightchild
                 leftchild = current * 2 + 1
                 rightchild = current * 2 + 2
+                
         return oldroot
                 
-    def peek(self): #returns but does not remove top element; if empty, returns None
+    def peek(self): #returns but does not pop top element; if empty, returns None
         if self.size > 0:
             return self.info[0]
         return None
@@ -61,21 +71,35 @@ class PriorityQueue:
     def size(self): #returns size of the current priority queue / heap
         return self.size
 
-
-
+    def tolist(self):
+        returned_list = []
+        size = 0
+        while size < len(self.info):
+            returned_list.append(self.pop())
+        return returned_list
 
 #Testing
-a = PriorityQueue([55,23443,123,2])
+a = Pqueue()
+a.push(10)
+a.push(8)
+a.push(12)
+a.push(100)
+a.push(22)
 
-a.insert(34)
-a.insert(99)
-a.insert(102)
-#a.insert(120)
-#a.insert(1)
-#a.insert(5)
-#a.insert(10)
+a.pop()
+a.pop()
+a.pop()
 
-a.remove()
+#a = Pqueue([1, 3, 3, 5])
+
+#a.push(100)
+#a.push(43)
+#a.push(9)
+#a.push(4)
+
+#a.pop()
+
+#print(a.tolist())
 
 print('-----')
 print(a)
