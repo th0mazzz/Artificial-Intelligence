@@ -4,8 +4,8 @@ import sys
 
 # ---------------------- PRIORITY QUEUE METHODS -------------------------
 def NeighborComparison(a,b): # tuple 
-    if a[1] < b[1]: return -1
-    if a[1] == b[1]: return 0
+    if (a[1] + a[2]) < (b[1] + b[2]): return -1
+    if (a[1] + a[2]) == (b[1] + b[2]): return 0
     return 1
 
 class PQueue:
@@ -136,40 +136,29 @@ def charDiff(worduno, worddos):
 
 def pathfinder(start, target):
     frontier = PQueue(NeighborComparison)
-    currentFrontierWords = set()
     explored = set()
-    path = []
     
-    step = 0
+    frontier.push((start, charDiff(start, target), 0, [])) # (word, charDiff, len_of_path, path)
 
-    frontier.push((start, step))
-
-    if start == target:
-        path = [start, target]
-        return path
-    else:
-        
-        while frontier.size != 0:
-            print(frontier)
-            print('\n')
-            current = frontier.pop()[0]
-            explored.add(current)
-            path.append(current)
-
-            if current == target:
-                return path
-            else:
-                neighbors = neighborsDict[current]
-                step = step * 2
+    while frontier.size != 0:
+        #print(frontier)
+        #print('\n')
+        current = frontier.pop()
+        if current[0] == target:
+            return current[3] + [current[0]]
+        else:
+            if current[0] not in explored:
+                explored.add(current[0])
+                current_path = current[3][:]+[current[0]]
+                neighbors = neighborsDict[current[0]]
+                #print('--------------')
+                #print(neighbors)
+                #print('--------------')
                 for neigh in neighbors:
-                    if (not neigh in explored and not neigh in currentFrontierWords):
-                        
-                        currentFrontierWords.add(neigh)
-                        diff = charDiff(neigh, target)
-                        frontier.push((neigh, step + diff))
-        return [start, target]
-    #print(path)       
-        
+                    if neigh not in explored:
+                        frontier.push((neigh, charDiff(neigh, target), len(current[3]), current_path))
+    return [start, target]
+
 def wordladder(inputfilename, outputfilename):
     #Opens files that need to be read
     inputfile = open(inputfilename, 'rU')
@@ -177,32 +166,37 @@ def wordladder(inputfilename, outputfilename):
     inputfile.close()
 
     #Generates key, value for start, end words
-    goals = {} # {startWord: endWord}
+    goals = [] # {startWord: endWord}
 
     wordlen = 0
     
     for pair in inputwords:
         moses = pair.split(',')
         if len(moses) == 2:
-            goals[moses[0]] = moses[1]
+            goals.append((moses[0], moses[1]))
             if wordlen == 0:
                 wordlen = len(moses[0])
 
+    print(goals)
+                
     #Gets rid of empty strings at end in case there is one
     if inputwords[len(inputwords) - 1]  == '' and len(inputwords) > 0:
         inputwords.remove('')
 
     createNeighborsDict(wordlen)
-    #print(neighborsDict)
 
     pathes = []
     
-    #Finds neigbors
-    for word in goals:
-        #print(pathfinder(word, goals[word]))
-        pathes.append(pathfinder(word, goals[word]))
-
+    for pair in goals:
+        print('from ' + pair[0] + ' to ' + pair[1])
+        #print(pathfinder(pair[0], pair[1]))
+        pathes.append(pathfinder(pair[0], pair[1]))
+        print('\n')
+    
+    
+    
     return_string = ''
+    print(pathes)
     for path in pathes:
         line = ''
         for word in path:
@@ -210,9 +204,12 @@ def wordladder(inputfilename, outputfilename):
         line = line[:len(line)-1] + '\n'
         return_string = return_string + line
 
+    print(return_string)
+        
     output = open(outputfilename, 'w')
     output.write(return_string)
     output.close()
+
     
-#charDiff('', '')
+
 wordladder(sys.argv[1], sys.argv[2])
