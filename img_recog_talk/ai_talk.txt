@@ -1,0 +1,69 @@
+AI Talk -- Image Recognition
+
+Function f(img)
+return list of 
+
+Set of:
+    SynthText (large)
+    ICDAR (real data)
+
+Convolutinonal Neural Net:
+- channels and weights
+- convolution of image and weights
+
+Dogs and Cats
+- train the program by examples (aka if anna is a doggo, machine will use data points and see that anna is a doggo)
+
+min f(theta)
+theta = theta - !theta f(theta)
+
+------------------------------------------------------------------------------------------------------------------------
+
+Actual Notes
+
+Data Augmentation
+- You can rotate and shift images (and even change aspect ratio, crop), which allows you to take a small amount of image data and create large data set
+  - Changes in values must be reasonable
+
+How Machine Learning Works
+y = f(x) "complicated" "handcrafted features" im very confuzzled... thank god im not going for CS major; me too ;)
+feed input into black box and take gradient with respect to parameters?
+can take days or weeks for a large model
+it can easily memorize, but that's easy; it generalizes instead
+when black box goes through training process, it learns stuff meaningful
+
+black box
+- 64 by 64 image, put through convolutional layers
+
+very hands off??
+do what works, if it does well on training data, then yeet that's great
+it's just a bunch of matrices
+
+------------------------------------------------------------------------------------------------------------------------
+
+OCR --> prediction
+prediction has 6 things:
+- probability that this pixel is part of word
+- rectangle
+  - in x,y direction, some offsets
+  - prediction of bounding box of "word"
+  - theta, how much to rotate the rectangle
+
+if human can't do it, why expect machine learning to
+
+problem is what if:
+one pixel says there is a box except no other pixels nearby
+solution: pick most confident pixel
+
+most of image is not words
+solution is weights:
+penalize incorrect positive examples like 60 times more than missing negative examples
+
+the ones that yall train on are the ones model is very confident but is wrong
+high loss is what it is called
+
+------------------------------------------------------------------------------------------------------------------------
+
+stages to project
+
+- writing code for blah blah blah, debugging, etc
