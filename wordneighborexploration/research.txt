@@ -1,0 +1,36 @@
+Xiaojie(Aaron) Li, Thomas Zhao
+AI pd9
+
+Analysis of compound words
+    We tried to answer the question "among all compound words, which word is most commonly used?" 
+This turned out to be very difficult because we would sort of have to brute force it, and there 
+are so many steps to the problem, such as finding the list of valid compound words, and having
+to check each one for possible candidates before summing them all up and giving the answer to the
+question. Due to this, we did not explore this idea. Even with Aaron's C project that allows a task
+to be distributed among all of Stuy's CS lab compmuters through child processes, and using that to 
+distribute the brute force, it would still take a long time.
+
+
+Analysis of all words possibly created by a combination of letters(3, 4, and 5 letters long)
+    Since anagrams seemed to be too easy, we decided to try to find the 3/4/5/6 letter long words 
+that can be rearranged to create the most number of words of length 3/4/5/6 or less respectively.
+Here are some results:
+
+* most populous 3-letter word: yam(ma, may, am, ya, ay, my, 6) -- RUNTIME: 11.488s
+* most populous 4-letter word: team(em, me, ate, ma, meat, eta, tea, am, tame, met, mate, at
+                                    tam, eat, mat, 15) -- RUNTIME: 3m26.037s
+* most populous 5-letter word: tapes(set, tap, pates, tea, septa, apt, seat, past, as, at, sea, spa, 
+                                    sap, peats, ape, taps, apes, pat, etas, pet, pa, tape, sate, pets,
+                                    east, pea, spat, pats, asp, peat, peas, spate, step, pas, pate, paste,
+                                    eat, ate, tea, eats, eta, pest, sat, apse, 44) -- RUNTIME: 18m18.275s
+* most populous 6-letter word: tapers(pates, rest, strep, taps, apes, tears, tape, rasp, east, reps, spate,
+                                    reap, tear, teas, trap, ears, set, rats, sear, tarps, septa, seat, past,
+                                    rate, asp, are, sea, peats, etas, pet, res, rep, per, re, pets, pea, pats,
+                                    prate, aster, step, spare, paste, sprat, ate, tapes, taper, apter, eta,
+                                    pate, spear, tares, apt, strap, art, ape, stare, arts, pares, pears, pa,
+                                    rates, ares, tea, spar, spat, pare, repast, pert, rapes, rapt, parse, rat
+                                    eras, rap, spa, sap, rape, sat, par, pas, pat, prates, tare, parts, sate, tars,
+                                    tarp, star, peat, pear, peas, traps, eats, tsar, part, apse, 109) -- RUNTIME: 134m30.577s                                   
+
+    As we can see, the longer the word, the harder and longer it takes for it to find all combinations. However,
+    the code wasn't optimized completely, so this run time may be skewed. 
