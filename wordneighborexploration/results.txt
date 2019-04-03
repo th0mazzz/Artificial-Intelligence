@@ -1,0 +1,20 @@
+Longest 3-letter:
+('yam', set(['ma', 'may', 'am', 'yam', 'ya', 'ay', 'my']), 7)
+real    0m11.488s
+user    0m11.406s
+sys     0m0.063s
+
+
+Longest 4-letter:
+('team', set(['em', 'me', 'ate', 'ma', 'meat', 'eta', 'tea', 'am', 'tame', 'met', 'mate', 'at', 'team', 'tam', 'eat', 'mat']), 16)
+
+real    3m26.037s
+user    3m24.625s
+sys     0m0.078s
+
+Longest 5-letter:
+('tapes', set(['set', 'tap', 'pates', 'tea', 'septa', 'apt', 'seat', 'past', 'as', 'at', 'sea', 'spa', 'sap', 'peats', 'ape', 'taps', 'apes', 'pat', 'etas', 'pet', 'pa', 'tape', 'sate', 'pets', 'east', 'pea', 'spat', 'pats', 'asp', 'peat', 'peas', 'spate', 'step', 'pas', 'pate', 'paste', 'eat', 'ate', 'tapes', 'teas', 'eats', 'eta', 'pest', 'sat', 'apse']), 45)
+
+real    18m18.275s
+user    18m7.797s
+sys     0m0.359s

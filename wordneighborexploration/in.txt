@@ -1,3 +1,6 @@
 math
 sex
 start
+smart
+horse
+apple
