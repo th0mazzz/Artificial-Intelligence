@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+import sys
+
 # States
 NEW_CELL = 0
 FIND_NEXT_CELL = 1
@@ -60,3 +63,5 @@ def main(argv=None):
     print ('Solution!, with ntrials, backtracks: ', ntrials,nback)
     printBoard(board)
     writeBoard(argv,name,board)
+
+main()
