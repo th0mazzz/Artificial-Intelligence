@@ -1,9 +1,12 @@
-#!/bin/usr/python3
+#!/usr/bin/python3
+import sys
 
 #-------- GLOBAL VARS --------
 numBack = 0
 numTrials = 0
 board = []
+solution = []
+solved = False
 cliques = [[0,1,2,3,4,5,6,7,8],
          [9,10,11,12,13,14,15,16,17],
          [18,19,20,21,22,23,24,25,26],
@@ -31,14 +34,12 @@ cliques = [[0,1,2,3,4,5,6,7,8],
          [54,55,56,63,64,65,72,73,74],
          [57,58,59,66,67,68,75,76,77],
          [60,61,62,69,70,71,78,79,80]]
-
-import sys
+cliqueNeighbors = {}
 
 def createBoard(inputfilename, puzzlename):
     with open(inputfilename) as file:
         content = file.readlines()
         content = [x.strip() for x in content]
-    #print(content)
 
     puzzle = []
 
@@ -55,6 +56,17 @@ def createBoard(inputfilename, puzzlename):
     for line in puzzleTemp:
         split = line.split(',')
         board.extend(split)
+
+def createCliqueNeighbors():
+    for tile in range(81):
+        affects = set()
+        for cliq in cliques:
+            if tile in cliq:
+                for each in cliq:
+                    if not each == tile:
+                        affects.add(each)
+        cliqueNeighbors[tile] = affects
+    #print(cliqueNeighbors)
 
 
 def printBoard(the_board):
@@ -81,46 +93,61 @@ def getNextTile(the_board, the_current):
         return the_current
 
 def isValid(the_board, the_current, the_guess):
-    importante = set()
-    for cliq in cliques:
-        if the_current in cliq:
-            for each in cliq:
-                if not each == the_current:
-                    importante.add(each)
+    neighs = cliqueNeighbors[the_current]
     #print(the_board)
-    for each in importante:
+    for each in neighs:
         if the_board[each] == str(the_guess):
             return False
     return True
 
 def main(inputBoards, outputname, puzzlename):
     createBoard(inputBoards, puzzlename)
+    createCliqueNeighbors()
+    print('le final return')
     mainHelper(board, 0)
+    printBoard(solution)
+    print('numTrials: ' + str(numTrials))
+    print('numBacks: ' + str(numBack))
+    file = open(outputname, 'w')
 
-i = 0
+    returned_string = ''
+    for num in range(9):
+        row = (solution[num * 9: (num + 1)*9 ])
+        for each in row:
+            returned_string = returned_string + each + ','
+        returned_string = returned_string[:len(returned_string) - 1] + '\n'
+    file.write(returned_string)
+    file.close()
 
 def mainHelper(the_board, current_tile):
-    global i
-    i = i + 1
-    print(i)
-    global numTrials
-    global numBack
-    if current_tile == None:
-        printBoard(the_board)
-        print('numTrials: ' + str(numTrials))
-        print('numBacks: ' + str(numBack))
-        return the_board
+    global numTrials, numBack, solved
 
-    digits = [1,2,3,4,5,6,7,8,9]
-    for guess in digits:
-        numTrials = numTrials + 1
-        if isValid(the_board, current_tile, guess):
-            the_board[current_tile] = str(guess)
-            mainHelper(the_board[:], getNextTile(the_board[:], current_tile))
+    if not solved:
 
-    numBack = numBack + 1
+        #printBoard(the_board)
+
+        if current_tile == None:
+
+            #printBoard(the_board)
+            #print('numTrials: ' + str(numTrials))
+            #print('numBacks: ' + str(numBack))
+            solution.extend(the_board)
+            solved = True
+            return None
+
+        digits = [1,2,3,4,5,6,7,8,9]
+        for guess in digits:
+            #print(guess)
+            numTrials = numTrials + 1
+            if isValid(the_board, current_tile, guess):
+                the_board[current_tile] = str(guess)
+                #print('returned ' + str(i) + str(mainHelper(the_board[:], getNextTile(the_board[:], current_tile))))
+
+                mainHelper(the_board[:], getNextTile(the_board[:], current_tile))
+
+        numBack = numBack + 1
+    return None
 
 
 
-
-main(sys.argv[1], sys.argv[2], sys.argv[3]) #$python <this file> <input boards> <output name> <which puzzle>
+print(main(sys.argv[1], sys.argv[2], sys.argv[3])) #$python <this file> <input boards> <output name> <which puzzle>
