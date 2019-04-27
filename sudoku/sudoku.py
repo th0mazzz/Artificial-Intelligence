@@ -36,6 +36,7 @@ cliques = [[0,1,2,3,4,5,6,7,8],
          [60,61,62,69,70,71,78,79,80]]
 cliqueNeighbors = {}
 
+#-------- HELPER METHODS FOR FIRST ALGORITHM --------
 def createBoard(inputfilename, puzzlename):
     with open(inputfilename) as file:
         content = file.readlines()
@@ -47,8 +48,18 @@ def createBoard(inputfilename, puzzlename):
         puzzlenameIndex = content.index('A1-1,Easy-NYTimes,unsolved')
     elif puzzlename == 'A2-1,Medium-NYTimes,unsolved':
         puzzlenameIndex = content.index('A2-1,Medium-NYTimes,unsolved')
-    else:
+    elif puzzlename == 'A3-1,Hard-NYTimes,unsolved':
         puzzlenameIndex = content.index('A3-1,Hard-NYTimes,unsolved')
+    elif puzzlename == 'A4-1,WebSudoku-Hard,unsolved':
+        puzzlenameIndex = content.index('A4-1,WebSudoku-Hard,unsolved')
+    elif puzzlename == 'A5-1,WebSudoku-Evil,unsolved':
+        puzzlenameIndex = content.index('A5-1,WebSudoku-Evil,unsolved')
+    elif puzzlename == 'A6-1,hardest-sudoku-telegraph,unsolved':
+        puzzlenameIndex = content.index('A6-1,hardest-sudoku-telegraph,unsolved')
+    elif puzzlename == 'A7-1,sudokugarden.de/files/100sudoku2-en.pdf-Nr-100,unsolved':
+        puzzlenameIndex = content.index('A7-1,sudokugarden.de/files/100sudoku2-en.pdf-Nr-100,unsolved')
+    else:
+        puzzlenameIndex = content.index('A8-1,sudokugarden.de/files/100sudoku2-en.pdf-Nr-50,unsolved')
 
     puzzleTemp = []
     for i in range(9):
@@ -87,7 +98,7 @@ def getNextTile(the_board, the_current):
         #print('getNextTile(): None')
         return None
     else:
-        while not the_board[the_current] == '_':
+        while (not the_board[the_current] == '_') or the_current == -1:
             the_current = the_current + 1
         #print('getNextTile(): ' + str(the_current))
         return the_current
@@ -99,6 +110,8 @@ def isValid(the_board, the_current, the_guess):
         if the_board[each] == str(the_guess):
             return False
     return True
+
+#-------- FIRST ALGORITHM --------
 
 def main(inputBoards, outputname, puzzlename):
     createBoard(inputBoards, puzzlename)
@@ -148,6 +161,85 @@ def mainHelper(the_board, current_tile):
         numBack = numBack + 1
     return None
 
+# -------- HELPER METHODS FOR SMART ALGORITHM --------
+
+def hasDigit(the_board, the_tile):
+    tile = the_board[the_tile]
+    if not tile == '_':
+        return True
+    return False
 
 
-print(main(sys.argv[1], sys.argv[2], sys.argv[3])) #$python <this file> <input boards> <output name> <which puzzle>
+def createPossibilities(the_board):
+    possibilities = {}
+    #printBoard(board)
+    digits = [1,2,3,4,5,6,7,8,9]
+    for tile in range(81):
+        valid = []
+        if not hasDigit(board, tile):
+            for number in digits:
+                if isValid(the_board, tile, number):
+                    valid.append(number)
+        possibilities[tile] = valid
+    #print(possibilities)
+    return possibilities
+
+#-------- SMART ALGORITHM --------
+
+def smartAlgo(inputBoards, outputname, puzzlename):
+    createBoard(inputBoards, puzzlename)
+    createCliqueNeighbors()
+    print('look at me')
+    possibilities = createPossibilities(board)
+    #print(possibilities)
+    current = getNextTile(board, -1)
+    smartAlgoHelper(board, current, possibilities)
+    printBoard(solution)
+    print('numTrials: ' + str(numTrials))
+    print('numBacks: ' + str(numBack))
+    file = open(outputname, 'w')
+
+    returned_string = ''
+    for num in range(9):
+        row = (solution[num * 9: (num + 1)*9 ])
+        for each in row:
+            returned_string = returned_string + each + ','
+        returned_string = returned_string[:len(returned_string) - 1] + '\n'
+    file.write(returned_string)
+    file.close()
+
+
+def smartAlgoHelper(the_board, current_tile, possibilities):
+    global numTrials, numBack, solved
+    if not solved:
+        if current_tile == None:
+
+            solution.extend(the_board)
+            solved = True
+            return None
+
+        if not len(possibilities[current_tile]) == 0:
+            digits = possibilities[current_tile]
+            for guess in digits:
+                #print(guess)
+                numTrials = numTrials + 1
+                if isValid(the_board, current_tile, guess):
+                    the_board[current_tile] = str(guess)
+                    #print('returned ' + str(i) + str(mainHelper(the_board[:], getNextTile(the_board[:], current_tile))))
+
+                    smartAlgoHelper(the_board[:], getNextTile(the_board[:], current_tile), possibilities)
+
+        if not solved:
+            numBack = numBack + 1
+    return None
+
+
+#main(sys.argv[1], sys.argv[2], sys.argv[3]) #$python <this file> <input boards> <output name> <which puzzle>
+# this one took about 3.5 seconds for the medium puzzle
+#numTrials: 1122111
+#numBacks: 124679
+
+smartAlgo(sys.argv[1], sys.argv[2], sys.argv[3])
+#this one is significantly faster for the medium puzzle (0.54 seconds)
+#numTrials: 112749
+#numBacks: 27974
