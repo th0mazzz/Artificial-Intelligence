@@ -17,9 +17,9 @@ class BoardNode:
         self.endState = None # if this is a terminal board, endState == 'x' or 'o' for wins, of 'd' for draw, else None if this board is not final
         self.children = [] # all layouts that can be reached with a single move
 
-        #self.best_move  # cell position (0-8) of the best move from this layout, or -1 if this is a final layout
-        #self.moves_to_end  # how many moves until the end of the game, if played perfectly.  0 if this is a final layout
-        #self.final_state   # expected final state ('x' if 'x' wins, 'o' if 'o' wins, else 'd' for a draw)
+        self.best_move = None # cell position (0-8) of the best move from this layout, or -1 if this is a final layout
+        self.moves_to_end = None # how many moves until the end of the game, if played perfectly.  0 if this is a final layout
+        self.final_state = None  # expected final state ('x' if 'x' wins, 'o' if 'o' wins, else 'd' for a draw)
 
     def print_me(self):
         print ('layout:',self.layout, 'endState:',self.endState)
@@ -65,25 +65,22 @@ def CreateAllBoards(layout, parent):
             node.children.append(thenewlayout)
             CreateAllBoards(thenewlayout, layout)
 
-def GetBestMove(layout):
-    layout_info = AllBoards[layout]
-    print(layout)
-    print(layout_info.children)
+def NextBestMove(board, search):
+    currentBoard = AllBoards[board]
+    currentChildren = currentBoard.children
 
-    if len(layout_info.children) == 0:
-        return layout_info.endState
+    if currentBoard.endState == 'x':
+        return currentBoard.layout
 
-    for child in layout_info.children:
-        returned = GetBestMove(child)
-        if returned == 'x':
-            print('\nthe chosen one:')
-            return child
+    for child in currentChildren:
+        search.append(child)
 
-
+    popped = search.pop()
+    return NextBestMove(popped, search)
 
 
 
 CreateAllBoards('_________',None)
 #print(AllBoards)
-move = GetBestMove('x_ox_o___')
-print('le chosen move: \n' + move)
+move = NextBestMove('x_ox_o___', [])
+print('le chosen move: \n' + str(move))
