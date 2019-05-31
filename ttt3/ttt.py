@@ -65,18 +65,49 @@ def CreateAllBoards(layout, parent):
             node.children.append(thenewlayout)
             CreateAllBoards(thenewlayout, layout)
 
-def NextBestMove(board, search):
-    currentBoard = AllBoards[board]
-    currentChildren = currentBoard.children
 
-    if currentBoard.endState == 'x':
-        return currentBoard.layout
 
-    for child in currentChildren:
-        search.append(child)
+def NextBestMove(layout, path, wins=[], draws=[], losses=[]):
+    current = AllBoards[layout]
 
-    popped = search.pop()
-    return NextBestMove(popped, search)
+    symbol = 'x'
+    if layout.count('x') > layout.count('o'):
+        symbol = 'o'
+
+    if current.endState == symbol:
+        wins.append((layout, len(path)))
+        return
+    elif current.endState == 'd':
+        draws.append((layout, len(path)))
+        return
+
+    sojourn = list(path)
+    frontier = []
+
+    print('path thus far: ' + str(sojourn))
+    print('curr board: ' + str(layout))
+    print('curr children: ' + str(current.children))
+    print('----\n')
+
+    for child in current.children:
+        frontier.append(child)
+        sojourn.append(child)
+        return NextBestMove(child, sojourn)
+        sojourn.pop()
+
+    #wins = [(layout, path_len), (layout, path_len)]
+    # if len(wins) > 0:
+    #     best = wins[0][1]
+    #     for eachwin in wins:
+    #         if eachwin[1] < best:
+    #             best = eachwin[1]
+    #     return best
+    # if len(draws) > 0:
+    #     best = draws[0][1]
+    #     for eachdraw in draws:
+    #         if eachdraw[1] < best:
+    #             best = eachdraw[1]
+    #     return best
 
 
 
