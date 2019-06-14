@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 ''' Layout positions:
 0 1 2
 3 4 5
@@ -5,7 +7,7 @@
 '''
 # layouts look like "_x_ox__o_"
 
-import functools
+import functools, sys
 
 Wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]
 
@@ -19,12 +21,16 @@ class BoardNode:
 
         self.best_move = None # cell position (0-8) of the best move from this layout, or -1 if this is a final layout
         self.moves_to_end = None # how many moves until the end of the game, if played perfectly.  0 if this is a final layout
+        self.total_moves_to_end = None
         self.final_state = None  # expected final state ('x' if 'x' wins, 'o' if 'o' wins, else 'd' for a draw)
 
     def print_me(self):
-        print ('layout:',self.layout, 'endState:',self.endState)
+        print ('         layout:',self.layout, 'endState:',self.endState)
         #print ('parents:',self.parents)
-        print ('children:',self.children)
+        print ('         children:',self.children)
+        print ('         bestmove:',self.best_move, "total_moves_to_end:", self.total_moves_to_end)
+        print ('         movestoend:', self.moves_to_end)
+        print ('         expectedfinal:', self.final_state)
 
 def endStateChecker(layout):
     for combo in Wins:
@@ -35,83 +41,118 @@ def endStateChecker(layout):
                 return 'd'
     return None
 
-def CreateAllBoards(layout, parent):
+def CreateAllBoards(layout, parent, num_moves):
     # recursive function to manufacture all BoardNode nodes and place them into the AllBoards dictionary
+
+    # print('iteration ', layout)
 
     global AllBoards
 
+    if layout in AllBoards: #base case number 1
+        return
+
     node = BoardNode(layout)
-    #if parent != None:
-        #node.parents.append(parent)
-
     node.endState = endStateChecker(layout)
-    #node.print_me()
-    AllBoards[layout] = node
 
-    if node.endState != None:
-        return None
+    if node.endState != None: #base case number 2 -- if it has endstate, return
+        node.total_moves_to_end = num_moves
+        node.moves_to_end = 0
+        node.final_state = node.endState
+        node.best_move = None
+        AllBoards[layout] = node
 
-    symbol = 'x'
+        # print('         made it   ', layout)
+        # node.print_me()
+        # print('\n')
+        return
 
+    symbol = 'x' #calculates current node's player symbol
     if layout.count('x') > layout.count('o'):
         symbol = 'o'
 
-    for index in range(9):
+    for index in range(9): #recurses to children
         if layout[index] == '_':
             newlayout = [x for x in layout]
             newlayout[index] = symbol
             thenewlayout = functools.reduce(lambda a, b: a + b, newlayout)
 
             node.children.append(thenewlayout)
-            CreateAllBoards(thenewlayout, layout)
+            CreateAllBoards(thenewlayout, layout, num_moves + 1)
 
 
 
-def NextBestMove(layout, path, wins=[], draws=[], losses=[]):
-    current = AllBoards[layout]
+    wins = []
+    draws = []
+    losses = []
+    for child in node.children:
+        if AllBoards[child].final_state == symbol:
+            wins.append(child)
+        elif AllBoards[child].final_state == 'd':
+            draws.append(child)
+        else:
+            losses.append(child)
 
-    symbol = 'x'
-    if layout.count('x') > layout.count('o'):
-        symbol = 'o'
-
-    if current.endState == symbol:
-        wins.append((layout, len(path)))
-        return
-    elif current.endState == 'd':
-        draws.append((layout, len(path)))
-        return
-
-    sojourn = list(path)
-    frontier = []
-
-    print('path thus far: ' + str(sojourn))
-    print('curr board: ' + str(layout))
-    print('curr children: ' + str(current.children))
-    print('----\n')
-
-    for child in current.children:
-        frontier.append(child)
-        sojourn.append(child)
-        return NextBestMove(child, sojourn)
-        sojourn.pop()
-
-    #wins = [(layout, path_len), (layout, path_len)]
-    # if len(wins) > 0:
-    #     best = wins[0][1]
-    #     for eachwin in wins:
-    #         if eachwin[1] < best:
-    #             best = eachwin[1]
-    #     return best
-    # if len(draws) > 0:
-    #     best = draws[0][1]
-    #     for eachdraw in draws:
-    #         if eachdraw[1] < best:
-    #             best = eachdraw[1]
-    #     return best
+    if len(wins) > 0:
+        one_win_layout = wins[0]
+        for win in wins:
+            if AllBoards[win].moves_to_end < AllBoards[one_win_layout].moves_to_end:
+                one_win_layout = win
+        node.total_moves_to_end = AllBoards[one_win_layout].total_moves_to_end
+        node.moves_to_end = node.total_moves_to_end - num_moves
+        node.final_state = symbol
+        node.best_move = one_win_layout
+    elif len(draws) > 0:
+        one_draw_layout = draws[0]
+        for draw in draws:
+            if AllBoards[draw].moves_to_end > AllBoards[one_draw_layout].moves_to_end:
+                one_draw_layout = draw
+        node.total_moves_to_end = AllBoards[one_draw_layout].total_moves_to_end
+        node.moves_to_end = node.total_moves_to_end - num_moves
+        node.final_state = 'd'
+        node.best_move = one_draw_layout
+    elif len(losses) > 0:
+        one_loss_layout = losses[0]
+        for loss in losses:
+            if AllBoards[loss].moves_to_end < AllBoards[one_loss_layout].moves_to_end:
+                one_loss_layout = loss
+        node.total_moves_to_end = AllBoards[one_loss_layout].total_moves_to_end
+        node.moves_to_end = node.total_moves_to_end - num_moves
+        node.final_state = AllBoards[one_loss_layout].final_state
+        node.best_move = one_loss_layout
 
 
+    AllBoards[layout] = node
 
-CreateAllBoards('_________',None)
-#print(AllBoards)
-move = NextBestMove('x_ox_o___', [])
-print('le chosen move: \n' + str(move))
+    # print('         made it   ', layout)
+    # node.print_me()
+    # print('\n')
+
+    return
+
+def ProcureBestMove(layout):
+    global AllBoards
+    CreateAllBoards('_________',None,0)
+    node = AllBoards[layout]
+    #print('layout: ', layout)
+    #print('nextmove', node.best_move)
+
+    indexofmove = None
+    for i in range(9):
+        if layout[i] != node.best_move[i]:
+            indexofmove = i
+
+    translations = {0:'upper-left', 1:'upper-middle', 2:'upper-right', 3:'middle-left', 4:'center', 5:'middle-right', 6:'lower-left', 7:'lower-middle', 8:'lower-right'}
+
+    print('move=' + str(indexofmove))
+    print('best move is',translations[indexofmove])
+
+    bestmovenode = AllBoards[node.best_move]
+    if bestmovenode.final_state == 'd':
+        print('draw in', node.moves_to_end)
+    else:
+        if node.moves_to_end == 1:
+            print(bestmovenode.final_state, 'wins in', node.moves_to_end, 'moves')
+        else:
+            print(bestmovenode.final_state, 'wins in', node.moves_to_end, 'moves')
+
+ProcureBestMove(sys.argv[1])
